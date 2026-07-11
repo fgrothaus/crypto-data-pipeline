@@ -4,16 +4,24 @@ services:
   rabbitmq:
     image: rabbitmq:3-management
     container_name: crypto_rabbitmq
+    hostname: crypto-rabbitmq-broker
     ports:
-      # 5672: Der Standard-Port für die Code-Kommunikation (AMQP)
+      # 5672: Code-Kommunikation (AMQP)
       - "5672:5672"
-      # 15672: Das Web-Dashboard für dich zum Reinschauen
+      # 15672: Das Web-Dashboard
       - "15672:15672"
     environment:
       - RABBITMQ_DEFAULT_USER=guest
       - RABBITMQ_DEFAULT_PASS=guest
     volumes:
       - rabbitmq_data:/var/lib/rabbitmq
+
+  redis:
+    image: redis:alpine
+    container_name: crypto-redis
+    ports:
+      - "6379:6379"
+    restart: always
 
 volumes:
   rabbitmq_data:
