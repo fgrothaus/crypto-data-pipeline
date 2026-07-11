@@ -127,7 +127,7 @@ celerybeat.pid
 .env
 .venv
 env/
-venv/
+services/backend/venv/
 ENV/
 env.bak/
 venv.bak/
@@ -174,3 +174,21 @@ poetry.toml
 pyrightconfig.json
 
 # End of https://www.toptal.com/developers/gitignore/api/python
+
+#---------- CUSTOM ----------
+**/.*venv/
+**/venv/
+**/env/
+
+**/.env
+**/.env.local
+**/.env.*.local
+
+**/node_modules/
+**/dist/
+**/.eslintcache
+**/.vite
+
+.idea/
+.vscode/
+/rabbitmq_data/
