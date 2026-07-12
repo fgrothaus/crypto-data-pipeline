@@ -1,27 +1,130 @@
+#version: '3.8'
+#
+#services:
+#  rabbitmq:
+#    image: rabbitmq:3-management
+#    container_name: crypto_rabbitmq
+#    hostname: crypto-rabbitmq-broker
+#    ports:
+#      # 5672: Code-Kommunikation (AMQP)
+#      - "5672:5672"
+#      # 15672: Das Web-Dashboard
+#      - "15672:15672"
+#    environment:
+#      - RABBITMQ_DEFAULT_USER=guest
+#      - RABBITMQ_DEFAULT_PASS=guest
+#    volumes:
+#      - rabbitmq_data:/var/lib/rabbitmq
+#
+#  redis:
+#    image: redis:alpine
+#    container_name: crypto-redis
+#    ports:
+#      - "6379:6379"
+#    restart: always
+#
+#volumes:
+#  rabbitmq_data:
+
 version: '3.8'
 
-services:
-  rabbitmq:
-    image: rabbitmq:3-management
-    container_name: crypto_rabbitmq
-    hostname: crypto-rabbitmq-broker
-    ports:
-      # 5672: Code-Kommunikation (AMQP)
-      - "5672:5672"
-      # 15672: Das Web-Dashboard
-      - "15672:15672"
-    environment:
-      - RABBITMQ_DEFAULT_USER=guest
-      - RABBITMQ_DEFAULT_PASS=guest
-    volumes:
-      - rabbitmq_data:/var/lib/rabbitmq
+networks:
+  crypto-network:
+    driver: bridge
 
+services:
+  # --- REVERSE PROXY (TRAEFIK) ---
+  traefik:
+    image: traefik:v3.0
+    container_name: traefik
+    command:
+      - "--api.insecure=true" # Schaltet das Traefik-Dashboard frei
+      - "--providers.docker=true"
+      - "--providers.docker.exposedbydefault=false"
+      - "--entrypoints.web.address=:80"
+    ports:
+      - "80:80"          # HTTP-Traffic für deine Apps
+      - "8080:8080"      # Traefik Dashboard (http://localhost:8080)
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+    networks:
+      - crypto-network
+
+  # --- INFRASTRUKTUR ---
   redis:
     image: redis:alpine
-    container_name: crypto-redis
-    ports:
-      - "6379:6379"
+    container_name: crypto_redis
+    networks:
+      - crypto-network
+    # Daten bleiben erhalten, falls der Container neu startet
+    volumes:
+      - redis_data:/data 
+
+  rabbitmq:
+    image: rabbitmq:4.0-management-alpine
+    container_name: crypto_rabbitmq
+    networks:
+      - crypto-network
+    environment:
+      RABBITMQ_DEFAULT_USER: guest
+      RABBITMQ_DEFAULT_PASS: guest
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.rabbitmq.rule=Host(`rabbitmq.localhost`)"
+      - "traefik.http.services.rabbitmq.loadbalancer.server.port=15672"
+
+  # --- DEINE PIPELINE SERVICES ---
+  ingestion-service:
+    build: ./services/ingestion
+    container_name: crypto_ingestion
     restart: always
+    depends_on:
+      - rabbitmq
+    env_file:
+      - ./services/ingestion/.env
+    networks:
+      - crypto-network
+
+  backend-consumer:
+    build: ./services/backend
+    container_name: crypto_consumer
+    restart: always
+    command: python consumer.py # Überschreibt den CMD-Befehl aus dem Backend-Dockerfile
+    depends_on:
+      - rabbitmq
+      - redis
+    env_file:
+      - ./services/backend/.env
+    networks:
+      - crypto-network
+
+  backend-api:
+    build: ./services/backend
+    container_name: crypto_api
+    restart: always
+    depends_on:
+      - redis
+    env_file:
+      - ./services/backend/.env
+    networks:
+      - crypto-network
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.backend.rule=Host(`api.crypto.localhost`)"
+      - "traefik.http.services.backend.loadbalancer.server.port=8000"
+
+  frontend:
+    build: ./services/frontend
+    container_name: crypto_frontend
+    restart: always
+    depends_on:
+      - backend-api
+    networks:
+      - crypto-network
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.frontend.rule=Host(`crypto.localhost`)"
+      - "traefik.http.services.frontend.loadbalancer.server.port=80"
 
 volumes:
-  rabbitmq_data:
+  redis_data:
