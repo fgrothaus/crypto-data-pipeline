@@ -1,11 +1,9 @@
 import os
 import asyncio
-import json
 
-from dns.dnssec import validate
 from dotenv import load_dotenv
 from redis import asyncio as aioredis
-from aio_pika import connect, Message, IncomingMessage
+from aio_pika import connect, IncomingMessage
 from models import PriceUpdate
 
 load_dotenv()
@@ -29,7 +27,7 @@ async def start_listening():
 
     await queue.consume(process_message)
     try:
-        await asyncio.Future()  # Hält den Prozess am Leben
+        await asyncio.Future()
     finally:
         await connection.close()
         await redis_client.aclose()

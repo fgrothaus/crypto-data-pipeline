@@ -10,7 +10,7 @@ RUN npm run build
 
 FROM nginx:alpine
 
-# Kopiere die gebauten statischen Dateien in den Nginx-Standardordner
+# Kopiert die gebauten statischen Dateien in den Nginx-Standardordner
 COPY --from=build /app/dist /usr/share/nginx/html
 
 EXPOSE 80
