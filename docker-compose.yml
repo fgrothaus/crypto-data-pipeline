@@ -1,31 +1,3 @@
-#version: '3.8'
-#
-#services:
-#  rabbitmq:
-#    image: rabbitmq:3-management
-#    container_name: crypto_rabbitmq
-#    hostname: crypto-rabbitmq-broker
-#    ports:
-#      # 5672: Code-Kommunikation (AMQP)
-#      - "5672:5672"
-#      # 15672: Das Web-Dashboard
-#      - "15672:15672"
-#    environment:
-#      - RABBITMQ_DEFAULT_USER=guest
-#      - RABBITMQ_DEFAULT_PASS=guest
-#    volumes:
-#      - rabbitmq_data:/var/lib/rabbitmq
-#
-#  redis:
-#    image: redis:alpine
-#    container_name: crypto-redis
-#    ports:
-#      - "6379:6379"
-#    restart: always
-#
-#volumes:
-#  rabbitmq_data:
-
 version: '3.8'
 
 networks:
@@ -38,13 +10,13 @@ services:
     image: traefik:v3.0
     container_name: traefik
     command:
-      - "--api.insecure=true" # Schaltet das Traefik-Dashboard frei
-      - "--providers.docker=true"
+      - "--api.insecure=true" # Traefik-Dashboard freischalten (access über 8080)
+      - "--providers.docker=true" # Docker-Engine beobachten und Labels von neuen Containern auslesen
       - "--providers.docker.exposedbydefault=false"
       - "--entrypoints.web.address=:80"
     ports:
-      - "80:80"          # HTTP-Traffic für deine Apps
-      - "8080:8080"      # Traefik Dashboard (http://localhost:8080)
+      - "80:80"
+      - "8080:8080"
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock:ro
     networks:
@@ -56,7 +28,6 @@ services:
     container_name: crypto_redis
     networks:
       - crypto-network
-    # Daten bleiben erhalten, falls der Container neu startet
     volumes:
       - redis_data:/data 
 
@@ -73,7 +44,7 @@ services:
       - "traefik.http.routers.rabbitmq.rule=Host(`rabbitmq.localhost`)"
       - "traefik.http.services.rabbitmq.loadbalancer.server.port=15672"
 
-  # --- DEINE PIPELINE SERVICES ---
+  # --- APP SERVICES ---
   ingestion-service:
     build: ./services/ingestion
     container_name: crypto_ingestion

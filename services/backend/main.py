@@ -22,8 +22,3 @@ async def websocket_endpoint(websocket: WebSocket):
             await asyncio.sleep(1)
     except WebSocketDisconnect:
         print("Frontend hat die WebSocket-Verbindung getrennt.")
-
-
-@app.get("/")
-def read_root():
-    return {"Hello": "World"}
