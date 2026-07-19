@@ -192,3 +192,5 @@ pyrightconfig.json
 .idea/
 .vscode/
 /rabbitmq_data/
+
+*secret.yml
