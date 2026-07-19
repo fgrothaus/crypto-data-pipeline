@@ -1,0 +1,27 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: crypto-api-deployment
+  namespace: default
+  labels:
+    app: crypto-api
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: crypto-api
+  template:
+    metadata:
+      labels:
+        app: crypto-api
+    spec:
+      containers:
+      - name: api-service
+        image: fgrothaus1/crypto-backend:latest
+        imagePullPolicy: Always
+        ports:
+        - containerPort: 8000
+          name: api-port
+        envFrom:
+        - configMapRef:
+            name: backend-config

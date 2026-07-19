@@ -1,0 +1,7 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: ingestion-config
+  namespace: default
+data:
+  RABBITMQ_CONNECTION_STRING: "amqp://guest:guest@rabbitmq:5672/"

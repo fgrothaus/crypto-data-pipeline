@@ -1,0 +1,9 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: backend-config
+  namespace: default
+data:
+  PYTHONUNBUFFERED: "1" # Um sich livelogs aus der Anwendung anzeigen zu lassen
+  REDIS_URL: "redis://redis:6379"
+  RABBITMQ_CONNECTION_STRING: "amqp://guest:guest@rabbitmq:5672/"

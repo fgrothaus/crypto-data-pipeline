@@ -1,0 +1,24 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: crypto-frontend-deployment
+  namespace: default
+  labels:
+    app: crypto-frontend
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: crypto-frontend
+  template:
+    metadata:
+      labels:
+        app: crypto-frontend
+    spec:
+      containers:
+      - name: frontend-service
+        image: fgrothaus1/crypto-frontend:latest
+        imagePullPolicy: Always
+        ports:
+        - containerPort: 80
+          name: web-port

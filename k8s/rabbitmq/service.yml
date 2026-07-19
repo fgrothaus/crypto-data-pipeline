@@ -1,0 +1,20 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: rabbitmq
+  namespace: default
+  labels:
+    app: rabbitmq
+spec:
+  selector:
+    app: rabbitmq # Verknüpfung zum statefulset
+  ports:
+    - name: amqp # Weiterleitung zu RabbitMQ
+      protocol: TCP
+      port: 5672
+      targetPort: 5672
+    - name: management # Weiterleitung zu RabbitMQ Dashboard
+      protocol: TCP
+      port: 15672
+      targetPort: 15672
+  type: ClusterIP

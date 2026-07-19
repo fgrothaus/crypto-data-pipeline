@@ -1,0 +1,36 @@
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: rabbitmq # steht unter kubectl get statefulset
+  namespace: default
+spec:
+  serviceName: "rabbitmq" # Verbindung zum Service
+  replicas: 1
+  selector:
+    matchLabels:
+      app: rabbitmq # Sagt dem Master-Server, dass Statefulset alle Pods mit diesem Namen verwaltet.
+  template:
+    metadata:
+      labels:
+        app: rabbitmq # Label des Pods, welches mit matchLabels.app übereinstimmen muss
+    spec:
+      containers:
+      - name: rabbitmq
+        image: rabbitmq:4.0-management-alpine
+        imagePullPolicy: IfNotPresent
+        ports:
+        - containerPort: 5672
+          name: amqp
+        - containerPort: 15672
+          name: management
+        volumeMounts:
+        - name: rabbitmq-data
+          mountPath: /var/lib/rabbitmq
+  volumeClaimTemplates:
+  - metadata:
+      name: rabbitmq-data
+    spec:
+      accessModes: [ "ReadWriteOnce" ]
+      resources:
+        requests:
+          storage: 1Gi

@@ -1,0 +1,25 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: crypto-consumer-deployment
+  namespace: default
+  labels:
+    app: crypto-consumer
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: crypto-consumer
+  template:
+    metadata:
+      labels:
+        app: crypto-consumer
+    spec:
+      containers:
+      - name: consumer-service
+        image: fgrothaus1/crypto-backend:latest
+        imagePullPolicy: Always
+        command: ["python", "consumer.py"]
+        envFrom:
+        - configMapRef:
+            name: backend-config
