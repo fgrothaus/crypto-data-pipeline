@@ -2,7 +2,7 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: crypto-ingestion-deployment
-  namespace: default
+  namespace: crypto-project
 spec:
   replicas: 1
   selector:
@@ -22,3 +22,10 @@ spec:
             name: ingestion-config
         - secretRef:
             name: ingestion-secret # untracked file. Wird lokal mit kubectl eingebunden
+        resources:
+          requests:
+            memory: "64Mi"
+            cpu: "100m"
+          limits:
+            memory: "256Mi"
+            cpu: "500m"
