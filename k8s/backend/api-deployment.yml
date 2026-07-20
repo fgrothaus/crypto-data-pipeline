@@ -2,7 +2,7 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: crypto-api-deployment
-  namespace: default
+  namespace: crypto-project
   labels:
     app: crypto-api
 spec:
@@ -25,3 +25,22 @@ spec:
         envFrom:
         - configMapRef:
             name: backend-config
+        resources:
+          requests:
+            memory: "64Mi"      # Mindestbedarf an RAM beim Start
+            cpu: "100m"         # Mindestbedarf an CPU (0,1 Kern)
+          limits:
+            memory: "256Mi"     # Harte RAM-Grenze
+            cpu: "500m"         # Maximale CPU-Leistung (0,5 Kerne)
+        readinessProbe:
+          httpGet:
+            path: /ready
+            port: 8000
+          initialDelaySeconds: 5  # 5s warten nach Containerstart, bevor geprüft wird
+          periodSeconds: 10       # Alle 10s prüfen
+        livenessProbe:
+          httpGet:
+            path: /live
+            port: 8000
+          initialDelaySeconds: 10
+          periodSeconds: 20
