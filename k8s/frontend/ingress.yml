@@ -7,7 +7,6 @@ metadata:
     ingress.kubernetes.io/ssl-redirect: "false"
 spec:
   rules:
-  # 1. Regel: Wenn du das Frontend aufrufst
   - host: crypto.localhost
     http:
       paths:
@@ -18,7 +17,6 @@ spec:
             name: crypto-frontend-service
             port:
               number: 80
-  # 2. Regel: Das, worauf dein Code brennt – die API inklusive WebSockets!
   - host: api.crypto.localhost
     http:
       paths:
