@@ -9,11 +9,12 @@ spec:
   replicas: 1
   selector:
     matchLabels:
-      app: crypto-api
+      app: crypto-api # Sagt dem Master-Server, dass Statefulset alle Pods mit diesem Namen verwaltet.
+      # Das Label für die Pods wird im template.metadata.labels definiert und ist somit das gleiche, wie das Label, das der Service sucht, um die Anfragen weiterzuleiten.
   template:
     metadata:
       labels:
-        app: crypto-api
+        app: crypto-api # Label des Pods, das vom Service gesucht wird. Zudem werden auch über kubectl get all -l app=rabbitmq Infos angezeigt.
     spec:
       containers:
       - name: api-service
@@ -22,7 +23,7 @@ spec:
         ports:
         - containerPort: 8000
           name: api-port
-        envFrom:
+        envFrom: # Anweisung, um die Variablen aus der ConfigMap/Secret in die Container-Umgebung zu laden.
         - configMapRef:
             name: backend-config
         resources:

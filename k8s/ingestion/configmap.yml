@@ -3,5 +3,5 @@ kind: ConfigMap
 metadata:
   name: ingestion-config
   namespace: crypto-project
-data:
+data: # Alternative zu stringData. Daten werden einfach als Bytes (im Klartext) abgespeichert.
   RABBITMQ_CONNECTION_STRING: "amqp://guest:guest@rabbitmq:5672/"

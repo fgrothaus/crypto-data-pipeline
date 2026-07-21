@@ -1,20 +1,22 @@
 apiVersion: v1
 kind: Service
 metadata:
-  name: rabbitmq
+  name: rabbitmq # Label, unter dem der Service für andere Pods erreichbar ist (DNS-Name)
   namespace: crypto-project
   labels:
-    app: rabbitmq
+    app: rabbitmq # Label, mit dem Infos zum jeweiligen Manifest über kubectl get all -l app=rabbitmq abgefragt werden können. Wird oft zusätzlich für Pods angelegt, damit beides übersichtlich angezeigt werden kann.
 spec:
   selector:
-    app: rabbitmq # Verknüpfung zum statefulset
+    app: rabbitmq # Der Service sucht nach Pods mit diesem Label, um die Anfragen weiterzuleiten. Das Label muss im Statefulset/Deployment der Pods definiert sein.
   ports:
-    - name: amqp # Weiterleitung zu RabbitMQ
-      protocol: TCP
-      port: 5672
-      targetPort: 5672
-    - name: management # Weiterleitung zu RabbitMQ Dashboard
+    # Weiterleitung zu RabbitMQ
+    - name: amqp # Namen sind bei Multi-Port-Services Pflicht. Können im Ingress Controller verwendet werden -> service.port.name:. statt number:
+      protocol: TCP # Nur Layer 4 (Transportlayer) Protokolle werden erwartet (TCP, UDP, SCTP)
+      port: 5672 # Port auf dem der Service für andere Pods (aus anderen Manifesten) erreichbar ist
+      targetPort: 5672 # Port auf dem die Pods des zugehörigen Statefulset/Deployment erreichbar sind. Kann auch ein Name sein, der zusätzlich zum Port im Deployment/Statefulset definiert ist.
+    # Weiterleitung zu RabbitMQ Dashboard
+    - name: management
       protocol: TCP
       port: 15672
       targetPort: 15672
-  type: ClusterIP
+  type: ClusterIP # Defaultwert. Erstellt eine virtuelle IP, die nur innerhalb des Clusters erreichbar ist und somit von anderen Pods gefunden werden kann. (weitere: NodePort, LoadBalancer, ExternalName)

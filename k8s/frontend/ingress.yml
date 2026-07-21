@@ -3,21 +3,21 @@ kind: Ingress
 metadata:
   name: crypto-pipeline-ingress
   namespace: crypto-project
-  annotations:
-    ingress.kubernetes.io/ssl-redirect: "false"
+  annotations: # Zusatzinformationen für Dritte. In dem Fall Traefik
+    ingress.kubernetes.io/ssl-redirect: "false" # http-requests nicht automatisch auf https umleiten
 spec:
   rules:
   - host: crypto.localhost
     http:
       paths:
       - path: /
-        pathType: Prefix
+        pathType: Prefix # Alles was mit / anfängt, wird an den Service weitergeleitet. Also auch /login Alternative: Exact => Nur genau / wird weitergeleitet.
         backend:
           service:
             name: crypto-frontend-service
             port:
               number: 80
-  - host: api.crypto.localhost
+  - host: api.crypto.localhost # Backend wird eingebunden, da Frontend die API aufruft. Ansonsten würde der Browser die API nicht erreichen, da sie im Cluster läuft und nicht von außen erreichbar ist.
     http:
       paths:
       - path: /

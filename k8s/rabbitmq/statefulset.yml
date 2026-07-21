@@ -1,36 +1,37 @@
 apiVersion: apps/v1
 kind: StatefulSet
 metadata:
-  name: rabbitmq # steht unter kubectl get statefulset
+  name: rabbitmq # name unter kubectl get statefulset. name für pods -> name-0, name-1, etc.
   namespace: crypto-project
-spec:
-  serviceName: "rabbitmq" # Verbindung zum Service
+spec: # statefulset spec
+  serviceName: "rabbitmq" # Für jeden Pod wird dadurch ein eigener DNS Eintrag erstellt, wodurch die Pods und damit auch die PVCs eindeutig identifiziert werden können.
   replicas: 1
   selector:
     matchLabels:
       app: rabbitmq # Sagt dem Master-Server, dass Statefulset alle Pods mit diesem Namen verwaltet.
+      # Das Label für die Pods wird im template.metadata.labels definiert und ist somit das gleiche, wie das Label, das der Service sucht, um die Anfragen weiterzuleiten.
   template:
     metadata:
       labels:
-        app: rabbitmq # Label des Pods, welches mit matchLabels.app übereinstimmen muss
-    spec:
+        app: rabbitmq # Label des Pods, das vom Service gesucht wird. Zudem werden auch über kubectl get all -l app=rabbitmq Infos angezeigt.
+    spec: # pod spec
       containers:
       - name: rabbitmq
         image: rabbitmq:4.0-management-alpine
-        imagePullPolicy: IfNotPresent
+        imagePullPolicy: IfNotPresent # Defaultwert. Lädt das Image nur, wenn es noch nicht lokal vorhanden ist. Alternativen: Always, Never
         ports:
         - containerPort: 5672
           name: amqp
         - containerPort: 15672
           name: management
         volumeMounts:
-        - name: rabbitmq-data
+        - name: rabbitmq-data # Referenz zu volumeClaimTemplates.metadata.name
           mountPath: /var/lib/rabbitmq
   volumeClaimTemplates:
   - metadata:
       name: rabbitmq-data
     spec:
-      accessModes: [ "ReadWriteOnce" ]
+      accessModes: [ "ReadWriteOnce" ] # Es darf nur von einem Pod gemountet werden, nicht gleichzeitig. Altnativen: ReadOnlyMany, ReadWriteMany
       resources:
         requests:
           storage: 1Gi
