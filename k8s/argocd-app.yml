@@ -9,6 +9,9 @@ spec:
     repoURL: 'https://github.com/fgrothaus/crypto-data-pipeline.git'
     targetRevision: HEAD
     path: k8s # ArgoCD scannt den Ordner k8s/ auf alle .yml-Dateien
+    directory:
+      recurse: true
+      exclude: 'argocd-app.yml'
   destination:
     server: 'https://kubernetes.default.svc'
     namespace: crypto-project
@@ -18,3 +21,4 @@ spec:
       selfHeal: true  # Stellt den Zustand automatisch wieder her, falls manuell gepfuscht wird
     syncOptions:
       - CreateNamespace=true # Erstellt den Namespace 'crypto-project' automatisch, falls er fehlt
+      - ApplyOutOfSyncOnly=true
