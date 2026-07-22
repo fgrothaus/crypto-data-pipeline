@@ -69,8 +69,8 @@ jobs:
       - name: Update K8s Manifest & Push to Git
         run: |
           sed -i "s|image: ${{ secrets.DOCKERHUB_USERNAME }}/crypto-ingestion:.*|image: ${{ secrets.DOCKERHUB_USERNAME }}/crypto-ingestion:${{ github.sha }}|g" k8s/ingestion/deployment.yml
-          git config local user.email "github-actions[bot]@users.noreply.github.com"
-          git config local user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git config user.name "github-actions[bot]"
           git add k8s/ingestion/deployment.yml
           git commit -m "ci(k8s): update ingestion image tag to ${{ github.sha }} [skip ci]"
           git push
