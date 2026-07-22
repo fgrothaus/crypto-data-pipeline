@@ -39,7 +39,7 @@ jobs:
 
   # --- SCHRITT 2: DOCKER BUILD & PUSH ---
   build-and-push-ingestion:
-    needs: test-and-lint # Läuft NUR, wenn Step 1 GRÜN war!
+    needs: test-and-lint
     runs-on: ubuntu-latest
 
     steps:
@@ -64,3 +64,13 @@ jobs:
           tags: |
             ${{ secrets.DOCKERHUB_USERNAME }}/crypto-ingestion:latest
             ${{ secrets.DOCKERHUB_USERNAME }}/crypto-ingestion:${{ github.sha }}
+
+      # --- SCHRITT 3: GITOPS UPDATE ---
+      - name: Update K8s Manifest & Push to Git
+        run: |
+          sed -i "s|image: ${{ secrets.DOCKERHUB_USERNAME }}/crypto-ingestion:.*|image: ${{ secrets.DOCKERHUB_USERNAME }}/crypto-ingestion:${{ github.sha }}|g" k8s/ingestion/deployment.yml
+          git config local user.email "github-actions[bot]@users.noreply.github.com"
+          git config local user.name "github-actions[bot]"
+          git add k8s/ingestion/deployment.yml
+          git commit -m "ci(k8s): update ingestion image tag to ${{ github.sha }} [skip ci]"
+          git push
