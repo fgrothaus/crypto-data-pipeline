@@ -4,7 +4,7 @@ import './App.css';
 function App() {
 
   const { data, isConnected } = useCryptoWebSocket('ws://api.crypto.localhost/ws/prices');
-
+  console.log("Deploy Test");
   return (
     <div className="app-container">
       <header>
