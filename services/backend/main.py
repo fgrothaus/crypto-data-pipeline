@@ -1,5 +1,4 @@
 import asyncio
-import json
 import os
 from fastapi import FastAPI, WebSocket, WebSocketDisconnect, HTTPException, status
 from redis import asyncio as aioredis
