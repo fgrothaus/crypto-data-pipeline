@@ -1,0 +1,20 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: crypto-data-pipeline
+  namespace: argocd
+spec:
+  project: default
+  source:
+    repoURL: 'https://github.com/fgrothaus/crypto-data-pipeline.git'
+    targetRevision: HEAD
+    path: k8s # ArgoCD scannt den Ordner k8s/ auf alle .yml-Dateien
+  destination:
+    server: 'https://kubernetes.default.svc'
+    namespace: crypto-project
+  syncPolicy:
+    automated:
+      prune: true     # Löscht Ressourcen im Cluster, wenn sie in Git gelöscht wurden
+      selfHeal: true  # Stellt den Zustand automatisch wieder her, falls manuell gepfuscht wird
+    syncOptions:
+      - CreateNamespace=true # Erstellt den Namespace 'crypto-project' automatisch, falls er fehlt
