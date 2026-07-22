@@ -18,7 +18,7 @@ spec:
     spec:
       containers:
       - name: api-service
-        image: fgrothaus1/crypto-backend:latest
+        image: fgrothaus1/crypto-backend:f044d4a2e7e709f19d7213b2d7f0a35f68ec59d9
         imagePullPolicy: Always
         ports:
         - containerPort: 8000
