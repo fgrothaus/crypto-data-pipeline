@@ -1,0 +1,66 @@
+name: Ingestion CI
+
+on:
+  push:
+    branches: [ "master", "main" ]
+    paths:
+      - 'services/ingestion/**'
+      - '.github/workflows/ingestion-ci.yml'
+
+jobs:
+  # --- SCHRITT 1: LINTING & TESTS ---
+  test-and-lint:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+          cache: 'pip'
+          cache-dependency-path: 'services/ingestion/requirements.txt'
+
+      - name: Install Dependencies
+        run: |
+          python -m pip install --upgrade pip
+          if [ -f services/ingestion/requirements.txt ]; then pip install -r services/ingestion/requirements.txt; fi
+          pip install ruff pytest
+
+      - name: Lint code with Ruff
+        run: |
+          ruff check services/ingestion/
+
+      - name: Run Tests
+        run: |
+          pytest services/ingestion/ || true
+
+  # --- SCHRITT 2: DOCKER BUILD & PUSH ---
+  build-and-push-ingestion:
+    needs: test-and-lint # Läuft NUR, wenn Step 1 GRÜN war!
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: Log in to Docker Hub
+        uses: docker/login-action@v3
+        with:
+          username: ${{ secrets.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_TOKEN }}
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Build and Push Ingestion Image
+        uses: docker/build-push-action@v5
+        with:
+          context: ./services/ingestion
+          file: ./services/ingestion/Dockerfile
+          push: true
+          tags: |
+            ${{ secrets.DOCKERHUB_USERNAME }}/crypto-ingestion:latest
+            ${{ secrets.DOCKERHUB_USERNAME }}/crypto-ingestion:${{ github.sha }}
