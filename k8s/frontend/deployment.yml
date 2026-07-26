@@ -17,7 +17,7 @@ spec:
     spec:
       containers:
       - name: frontend-service
-        image: fgrothaus1/crypto-frontend:b83b0f3de2f9991ba0cf0f80737f4f35c3972ce5
+        image: fgrothaus1/crypto-frontend:9f8e0e539d06655dd9f85513fbc60ee2bd3fd4a9
         imagePullPolicy: Always
         ports:
         - containerPort: 80
