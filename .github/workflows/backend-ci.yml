@@ -3,56 +3,58 @@ name: Backend CI (API & Consumer)
 on:
   push:
     branches: [ "master", "main" ]
-    paths:
+    paths: # Änderungen in genannten Pfaden und Dateien, triggern den Workflow
       - 'services/backend/**'
       - '.github/workflows/backend-ci.yml'
 
 jobs:
   test-and-lint:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-latest # Gibt an, auf welchem OS GitHub die Workflows ausführt
 
     steps:
+      # 1. Repo auschecken
       - name: Checkout Repository
         uses: actions/checkout@v4
-
+      # 2. Python einrichten
       - name: Set up Python
         uses: actions/setup-python@v5
         with:
           python-version: '3.11'
-          cache: 'pip'
+          cache: 'pip' # cachet die pip-Dependencies, die in der requirements.txt definiert sind. Bestimmte Versionen sind Voraussetzung
           cache-dependency-path: 'services/backend/requirements.txt'
-
+      # 3. Abhängigkeiten installieren
       - name: Install Dependencies
         run: |
           python -m pip install --upgrade pip
           if [ -f services/backend/requirements.txt ]; then pip install -r services/backend/requirements.txt; fi
           pip install ruff pytest
-
+      # 4. Linter laufen lassen 
       - name: Lint code with Ruff
         run: |
           ruff check services/backend/
-
+      # 5. Tests laufen lassen
       - name: Run Tests
         run: |
           pytest services/backend/ || true
 
   # --- ETAPPE 2: DOCKER BUILD & PUSH ---
   build-and-push:
-    needs: test-and-lint # Läuft NUR an, wenn test-and-lint GRÜN war!
+    needs: test-and-lint # Läuft NUR an, wenn test-and-lint vorher geklappt hat
     runs-on: ubuntu-latest
 
     steps:
+      # 1. Repo auschecken
       - name: Checkout Repository
         uses: actions/checkout@v4
 
-      # 1. Login bei Docker Hub über die verschlüsselten Secrets
+      # 2. Login bei Docker Hub über die verschlüsselten Secrets, die auf GitHub hinterlegt sind
       - name: Log in to Docker Hub
         uses: docker/login-action@v3
         with:
           username: ${{ secrets.DOCKERHUB_USERNAME }}
           password: ${{ secrets.DOCKERHUB_TOKEN }}
 
-      # 2. Buildx einrichten
+      # 2. Image-Builder einrichten
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v3
 
@@ -60,15 +62,17 @@ jobs:
       - name: Build and Push Backend Image
         uses: docker/build-push-action@v5
         with:
-          context: ./services/backend
+          context: ./services/backend # Pfad des Services, aus dem der Dockerfile das Image baut
           file: ./services/backend/Dockerfile
           push: true
+          # Es wird konventionell ein latest image im Dockerhub gepusht, sowie ein Image mit dem aktuellen Commit-Hash
           tags: |
             ${{ secrets.DOCKERHUB_USERNAME }}/crypto-backend:latest
             ${{ secrets.DOCKERHUB_USERNAME }}/crypto-backend:${{ github.sha }}
 
-      # 4. Image-Tag in Git aktualisieren (GitOps Trigger)
+      # 4. Image-Tag in Git aktualisieren (GitOps Trigger, durch den github.sha wird das Image-Tag geändert und der Deployment-Workflow in der GitHub Actions Pipeline getriggert)
       - name: Update K8s Manifest & Push to Git
+        # sed -i "s|SUCHSTRING.*|ERSETZSTRING|g" path/datei.yml (mit regex) -> Altes Image-Tag wird durch das Neue ersetzt. [skip ci] verhindert Dauerloop, da der Commit sonst wieder den Workflow triggern würde.
         run: |
           sed -i "s|image: ${{ secrets.DOCKERHUB_USERNAME }}/crypto-backend:.*|image: ${{ secrets.DOCKERHUB_USERNAME }}/crypto-backend:${{ github.sha }}|g" k8s/backend/api-deployment.yml
           sed -i "s|image: ${{ secrets.DOCKERHUB_USERNAME }}/crypto-backend:.*|image: ${{ secrets.DOCKERHUB_USERNAME }}/crypto-backend:${{ github.sha }}|g" k8s/backend/consumer-deployment.yml
