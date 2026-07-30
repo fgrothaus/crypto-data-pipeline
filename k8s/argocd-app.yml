@@ -2,23 +2,23 @@ apiVersion: argoproj.io/v1alpha1
 kind: Application
 metadata:
   name: crypto-data-pipeline
-  namespace: argocd
+  namespace: argocd # für ArgoCD wurde ein eigener Namespace angelegt
 spec:
   project: default
   source:
-    repoURL: 'https://github.com/fgrothaus/crypto-data-pipeline.git'
+    repoURL: 'https://github.com/fgrothaus/crypto-data-pipeline.git' # zu überwachende Ressource
     targetRevision: HEAD
-    path: k8s
+    path: k8s # Wenn in einem Deployment ein neuer git.sha eingetragen wird, wird das ArgoCD-Deployment getriggert.
     directory:
-      recurse: true
+      recurse: true # Bei jeder Änderung im k8s Verzeichnis. I.d.R. aber wenn git.sha sich ändert
       exclude: 'argocd-app.yml'
   destination:
-    server: 'https://kubernetes.default.svc'
-    namespace: crypto-project
+    server: 'https://kubernetes.default.svc'  # Server, auf dem das Deployment ausgeführt wird (in diesem Fall das Kubernetes-Cluster, in dem ArgoCD selbst läuft.)
+    namespace: crypto-project                 # https://kubernetes.default.svc ist die interne URL der k8s-API innerhalb des Clusters
   syncPolicy:
     automated:
       prune: true     # Löscht Ressourcen im Cluster, wenn sie in Git gelöscht wurden
-      selfHeal: true  # Stellt den Zustand automatisch wieder her, falls manuell gepfuscht wird
+      selfHeal: true  # Stellt den Zustand automatisch wieder her, falls manuelle Änderungen im Cluster vorgenommen wurden
     syncOptions:
       - CreateNamespace=true # Erstellt den Namespace 'crypto-project' automatisch, falls er fehlt
-      - ApplyOutOfSyncOnly=true
+      - ApplyOutOfSyncOnly=true # ArgoCD synct nur Dateien, die sich geändert haben über kubectl apply, anstatt alle Ressourcen neu zu erstellen (Defaultverhalten).
