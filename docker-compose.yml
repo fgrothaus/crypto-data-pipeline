@@ -1,5 +1,3 @@
-version: '3.8'
-
 networks:
   crypto-network:
     driver: bridge
@@ -28,12 +26,12 @@ services:
     container_name: crypto_redis
     networks:
       - crypto-network
-    volumes:
-      - redis_data:/data 
 
   rabbitmq:
     image: rabbitmq:4.0-management-alpine
     container_name: crypto_rabbitmq
+    volumes:
+      - rabbitmq_data:/var/lib/rabbitmq
     networks:
       - crypto-network
     environment:
@@ -49,6 +47,8 @@ services:
     build: ./services/ingestion
     container_name: crypto_ingestion
     restart: always
+    volumes:
+      - ./services/ingestion:/app
     depends_on:
       - rabbitmq
     env_file:
@@ -61,6 +61,8 @@ services:
     container_name: crypto_consumer
     restart: always
     command: python consumer.py # Überschreibt den CMD-Befehl aus dem Backend-Dockerfile
+    volumes:
+      - ./services/backend:/app
     depends_on:
       - rabbitmq
       - redis
@@ -73,6 +75,8 @@ services:
     build: ./services/backend
     container_name: crypto_api
     restart: always
+    volumes:
+      - ./services/backend:/app
     depends_on:
       - redis
     env_file:
@@ -88,6 +92,8 @@ services:
     build: ./services/frontend
     container_name: crypto_frontend
     restart: always
+    volumes:
+      - ./services/frontend:/app
     depends_on:
       - backend-api
     networks:
@@ -98,4 +104,4 @@ services:
       - "traefik.http.services.frontend.loadbalancer.server.port=80"
 
 volumes:
-  redis_data:
+  rabbitmq_data:
