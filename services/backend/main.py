@@ -3,6 +3,7 @@ import os
 from fastapi import FastAPI, WebSocket, WebSocketDisconnect, HTTPException, status
 from redis import asyncio as aioredis
 from dotenv import load_dotenv
+from redis.exceptions import RedisError
 
 load_dotenv()
 app = FastAPI()
@@ -33,8 +34,8 @@ async def readiness_check():
     try:
         await asyncio.wait_for(redis_client.ping(), timeout=2.0)
         return {"status": "ok", "redis": "connected"}
-    except Exception as e:
+    except (RedisError, asyncio.TimeoutError) as e:
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail=f"Redis connection missing: {str(e)}"
+            detail=f"Redis connection missing: {e}",
         )

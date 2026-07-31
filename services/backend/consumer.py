@@ -1,9 +1,12 @@
-import os
 import asyncio
+import os
 
+from aio_pika import IncomingMessage, connect
 from dotenv import load_dotenv
+from pydantic import ValidationError
 from redis import asyncio as aioredis
-from aio_pika import connect, IncomingMessage
+from redis.exceptions import RedisError
+
 from models import PriceUpdate
 
 load_dotenv()
@@ -16,8 +19,10 @@ async def process_message(message: IncomingMessage):
             json_string = valid_payload.model_dump_json()
             await redis_client.set("crypto:latest_prices", json_string)
             print("Actualisation of crypto prices in redis successful")
-        except Exception as e:
-            print(f"Validation failed: {e}")
+        except ValidationError as e:
+            print(f"Invalid message format, skipping: {e}")
+        except RedisError as e:
+            print(f"Redis write failed: {e}")
 
 
 async def start_listening():
