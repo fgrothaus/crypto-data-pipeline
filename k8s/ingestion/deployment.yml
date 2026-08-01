@@ -15,7 +15,7 @@ spec:
     spec:
       containers:
       - name: ingestion-service
-        image: fgrothaus1/crypto-ingestion:b50375b500b57454a83084e8948f57babcda7fa1
+        image: fgrothaus1/crypto-ingestion:af50eb52171b7d26552f0a14586838f5f3172529
         imagePullPolicy: Always
         envFrom:
         - configMapRef:
