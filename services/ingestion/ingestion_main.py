@@ -42,7 +42,14 @@ async def get_crypto_data():
 
 async def send_rabbitmq_message():
 
-    connection = await connect(os.getenv("RABBITMQ_CONNECTION_STRING"))
+    while True:
+        try:
+            connection = await connect(os.getenv("RABBITMQ_CONNECTION_STRING"))
+            print("Ingestion successfully connected to RabbitMQ!", flush=True)
+            break
+        except Exception as e:
+            print(f"RabbitMQ not ready for Ingestion ({e}), retrying in 3 seconds...", flush=True)
+            await asyncio.sleep(3)
 
     try:
         channel = await connection.channel()
