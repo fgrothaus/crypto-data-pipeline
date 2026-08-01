@@ -47,6 +47,7 @@ services:
     build: ./services/ingestion
     container_name: crypto_ingestion
     restart: always
+    command: hupper -m ingestion_main
     volumes:
       - ./services/ingestion:/app
     depends_on:
@@ -60,12 +61,15 @@ services:
     build: ./services/backend
     container_name: crypto_consumer
     restart: always
-    command: python consumer.py # Überschreibt den CMD-Befehl aus dem Backend-Dockerfile
+    command: hupper -m consumer # Überschreibt den CMD-Befehl aus dem Backend-Dockerfile
+    environment:
+      - PYTHONUNBUFFERED=1
     volumes:
       - ./services/backend:/app
     depends_on:
       - rabbitmq
       - redis
+      - postgres
     env_file:
       - ./services/backend/.env
     networks:
@@ -75,6 +79,7 @@ services:
     build: ./services/backend
     container_name: crypto_api
     restart: always
+    command: uvicorn main:app --host 0.0.0.0 --port 8000 --reload
     volumes:
       - ./services/backend:/app
     depends_on:
@@ -89,11 +94,17 @@ services:
       - "traefik.http.services.backend.loadbalancer.server.port=8000"
 
   frontend:
-    build: ./services/frontend
+    image: node:20-alpine
     container_name: crypto_frontend
     restart: always
+    working_dir: /app
+    command: sh -c "npm install && npm run dev -- --host 0.0.0.0"
+    environment:
+      - WATCHPACK_POLLING=true # Zwingt den React-Watcher unter Windows/Docker zum Erkennen
+      - CHOKIDAR_USEPOLLING=true
     volumes:
       - ./services/frontend:/app
+      - /app/node_modules
     depends_on:
       - backend-api
     networks:
@@ -101,7 +112,23 @@ services:
     labels:
       - "traefik.enable=true"
       - "traefik.http.routers.frontend.rule=Host(`crypto.localhost`)"
-      - "traefik.http.services.frontend.loadbalancer.server.port=80"
+      - "traefik.http.services.frontend.loadbalancer.server.port=5173"
+
+  postgres:
+    image: postgres:16-alpine
+    container_name: crypto_postgres
+    restart: always
+    environment:
+      POSTGRES_USER: crypto_user
+      POSTGRES_PASSWORD: crypto_password
+      POSTGRES_DB: crypto_db
+    ports:
+      - "5432:5432" # Öffnet den Port für DBeaver auf deinem Host
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    networks:
+      - crypto-network
 
 volumes:
   rabbitmq_data:
+  postgres_data:
