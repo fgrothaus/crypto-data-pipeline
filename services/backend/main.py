@@ -1,6 +1,7 @@
 import asyncio
 import os
 from fastapi import FastAPI, WebSocket, WebSocketDisconnect, HTTPException, status
+from fastapi.middleware.cors import CORSMiddleware
 from redis import asyncio as aioredis
 from dotenv import load_dotenv
 from redis.exceptions import RedisError
@@ -9,6 +10,15 @@ from database.database import get_coin_price_history
 load_dotenv()
 app = FastAPI()
 redis_client = aioredis.from_url(os.getenv("REDIS_URL"), decode_responses=True)
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
+
 
 @app.websocket("/ws/prices")
 async def websocket_endpoint(websocket: WebSocket):
