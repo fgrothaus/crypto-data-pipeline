@@ -35,7 +35,7 @@ export const useCryptoWebSocket = (url: string) => {
       }
     };
 
-    socket.onclose = (event) => {
+    socket.onclose = () => {
       if (!isComponentMounted) return;
       setIsConnected(false);
       console.log("WebSocket-Verbindung geschlossen.");
