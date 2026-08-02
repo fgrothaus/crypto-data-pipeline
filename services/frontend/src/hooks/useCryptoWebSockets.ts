@@ -12,42 +12,48 @@ export interface CryptoDataPayload {
 }
 
 export const useCryptoWebSocket = (url: string) => {
-    
-    const [data, setData] = useState<CryptoDataPayload | null>(null);
-    const [isConnected, setIsConnected] = useState<boolean>(false);
+  const [data, setData] = useState<CryptoDataPayload | null>(null);
+  const [isConnected, setIsConnected] = useState<boolean>(false);
 
-    useEffect(() => {
-        
-        const socket = new WebSocket(url);
+  useEffect(() => {
+    let isComponentMounted = true;
+    const socket = new WebSocket(url);
 
-        socket.onopen = () => {
-            setIsConnected(true);
-            console.log("Websocket-Verbindung erfolgreich initialisiert.");
-        }
+    socket.onopen = () => {
+      if (!isComponentMounted) return;
+      setIsConnected(true);
+      console.log("Websocket-Verbindung erfolgreich initialisiert.");
+    };
 
-        socket.onmessage = (event) => {
-            try {
-                const parsedData: CryptoDataPayload = JSON.parse(event.data);
-                setData(parsedData);
-            } catch(error) {
-                console.error("Fehler beim Parsen der WebSocket Daten:", error);
-            }
-        };
-            
-        socket.onclose = () => {
-            setIsConnected(false);
-            console.log("WebSocket-Verbindung geschlossen.");
-        }
+    socket.onmessage = (event) => {
+      if (!isComponentMounted) return;
+      try {
+        const parsedData: CryptoDataPayload = JSON.parse(event.data);
+        setData(parsedData);
+      } catch (error) {
+        console.error("Fehler beim Parsen der WebSocket Daten:", error);
+      }
+    };
 
-        socket.onerror = (error) => {
-            console.error('WebSocket-Fehler aufgetreten:', error);
-        };
+    socket.onclose = (event) => {
+      if (!isComponentMounted) return;
+      setIsConnected(false);
+      console.log("WebSocket-Verbindung geschlossen.");
+    };
 
-        return () => {
-            socket.close();
-        };
+    socket.onerror = (error) => {
+      if (isComponentMounted && socket.readyState !== WebSocket.CLOSED) {
+        console.error('WebSocket-Fehler aufgetreten:', error);
+      }
+    };
 
-    },[url]);
+    return () => {
+      isComponentMounted = false;
+      if (socket.readyState === WebSocket.OPEN || socket.readyState === WebSocket.CONNECTING) {
+        socket.close();
+      }
+    };
+  }, [url]);
 
-    return { data, isConnected };
+  return { data, isConnected };
 };
