@@ -41,47 +41,40 @@ async def get_crypto_data():
 
 
 async def send_rabbitmq_message():
-
     while True:
         try:
             connection = await connect(os.getenv("RABBITMQ_CONNECTION_STRING"))
             print("Ingestion successfully connected to RabbitMQ!", flush=True)
-            break
-        except Exception as e:
-            print(f"RabbitMQ not ready for Ingestion ({e}), retrying in 3 seconds...", flush=True)
-            await asyncio.sleep(3)
+            
+            channel = await connection.channel()
+            await channel.declare_queue("crypto_prices", durable=True)
 
-    try:
-        channel = await connection.channel()
-        await channel.declare_queue("crypto_prices", durable=True)
+            while True:
+                crypto_data = await get_crypto_data()
 
-        while True:
-            crypto_data = await get_crypto_data()
+                if crypto_data:
+                    try:
+                        valid_crypto_data = PriceUpdate(coins=crypto_data)
+                        payload = valid_crypto_data.model_dump_json()
 
-            if crypto_data:
-                try:
-                    valid_crypto_data = PriceUpdate(coins=crypto_data)
-                    payload = valid_crypto_data.model_dump_json()
-
-                    await channel.default_exchange.publish(
+                        await channel.default_exchange.publish(
                             Message(
                                 body=payload.encode(),
                                 delivery_mode=DeliveryMode.PERSISTENT,
-                                ),
+                            ),
                             routing_key="crypto_prices"
                         )
+                        print("Sent CoinGecko Data to RabbitMQ!", flush=True)
+                    except Exception as e:
+                        print(f"Validation/Publish failed: {e}", flush=True)
+                else:
+                    print("No data received from CoinGecko (check API Rate Limit!), skipping RabbitMQ publish.", flush=True)
 
-                    print("Sent CoinGecko Data to RabbitMQ!")
-                except Exception as e:
-                    print(f"Validation failed: {e}")
-            else:
-                print("No data received from CoinGecko, skipping RabbitMQ publish.")
-            await asyncio.sleep(FETCH_INTERVAL)
+                await asyncio.sleep(FETCH_INTERVAL)
 
-    except Exception as e:
-        print(f"Ingestion Loop encountered a critical error: {e}")
-    finally:
-        await connection.close()
+        except Exception as e:
+            print(f"Ingestion Loop error: {e}, reconnecting in 5 seconds...", flush=True)
+            await asyncio.sleep(5)
 
 if __name__ == "__main__":
     asyncio.run(send_rabbitmq_message())
