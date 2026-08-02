@@ -70,6 +70,7 @@ services:
       - rabbitmq
       - redis
       - postgres
+      - ingestion-service
     env_file:
       - ./services/backend/.env
     networks:
