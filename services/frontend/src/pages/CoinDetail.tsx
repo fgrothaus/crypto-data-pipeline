@@ -40,7 +40,7 @@ export function CoinDetail() {
                 <YAxis domain={['auto', 'auto']} stroke="#8884d8" />
                 <Tooltip
                     contentStyle={{ backgroundColor: '#2a2a3c', borderColor: '#444', color: '#fff' }}
-                    formatter={(value: any) => [
+                    formatter={(value: unknown) => [
                         Number(value ?? 0).toLocaleString('de-DE', {
                         style: 'currency',
                         currency: 'EUR',
