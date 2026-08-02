@@ -4,6 +4,7 @@ from fastapi import FastAPI, WebSocket, WebSocketDisconnect, HTTPException, stat
 from redis import asyncio as aioredis
 from dotenv import load_dotenv
 from redis.exceptions import RedisError
+from database.database import get_coin_price_history
 
 load_dotenv()
 app = FastAPI()
@@ -22,6 +23,17 @@ async def websocket_endpoint(websocket: WebSocket):
             await asyncio.sleep(1)
     except WebSocketDisconnect:
         print("Frontend disconnected the WebSocket-Connection.")
+
+
+@app.get("/prices/history/{coin_id}")
+async def get_history(coin_id: str):
+    history = await get_coin_price_history(coin_id)
+
+    if not history:
+        raise HTTPException(status_code=404, detail=f"No price history found for coin '{coin_id}'")
+
+    return history
+
 
 # Liveness-Check (Anwendung lebt)
 @app.get("/live")
