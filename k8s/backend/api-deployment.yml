@@ -26,6 +26,8 @@ spec:
         envFrom: # Anweisung, um die Variablen aus der ConfigMap/Secret in die Container-Umgebung zu laden.
         - configMapRef:
             name: backend-config
+        - secretRef:
+            name: postgres-secret
         resources:
           requests:
             memory: "64Mi"      # Mindestbedarf an RAM beim Start

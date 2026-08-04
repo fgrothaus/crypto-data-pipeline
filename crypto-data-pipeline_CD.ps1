@@ -33,7 +33,8 @@ kubectl wait --for=condition=available deployment/argocd-server -n argocd --time
 # Lokales Secret vorab anlegen (falls noch nicht in Git)
 Write-Host "Wende lokales Ingestion-Secret an..." -ForegroundColor Green
 kubectl create namespace crypto-project 2>$null
-kubectl apply -f k8s/ingestion/secret.yml
+kubectl apply -n crypto-project -f k8s/ingestion/secret.yml
+kubectl apply -n crypto-project -f k8s/postgres/secret.yml
 
 # GitOps Application verknüpfen
 Write-Host "Verknüpfe ArgoCD mit deiner GitHub-Pipeline..." -ForegroundColor Green
