@@ -17,7 +17,7 @@ spec:
     spec:
       containers:
       - name: consumer-service
-        image: fgrothaus1/crypto-backend:00cfbf5617fa208be1f7c89e16f5ab3095cd4fca
+        image: fgrothaus1/crypto-backend:45844825bf133194da199496881aa2c38c370c57
         imagePullPolicy: Always
         command: ["python", "consumer.py"]
         envFrom:
