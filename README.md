@@ -341,13 +341,11 @@ flowchart TD
 | **Backend — API** | dito | `/live` liefert `200`; `/ready` prüft echte Redis-Verbindung; `/prices/history/unknown_coin` liefert `404` mit passender Message |
 | **Ingestion — externe API** | `services/ingestion/tests/test_ingestion_integration.py` | CoinGecko ist erreichbar und liefert das erwartete Schema (`eur`, `eur_24h_change`), inkl. Plausibilitäts-Check |
 
-```
-
 ---
 
 ## Projektstruktur
 
-```
+```text
 crypto-data-pipeline/
 ├── .github/workflows/              # CI/CD — GitHub Actions
 │   ├── backend-ci.yml              #   Lint → Test (mit PG+Redis) → Build → Push → GitOps-Update
@@ -408,8 +406,3 @@ crypto-data-pipeline/
 ├── docker-compose.yml              # Lokales Debug-Setup inkl. Traefik & Postgres
 ├── crypto-data-pipeline_CD.ps1     # Bootstrap: k3d-Cluster + ArgoCD + Secrets
 └── DOKUMENTATION.md                # Dieses Dokument
-```
-
----
-
-*Die Image-Tags in den K8s-Manifesten werden von der CI/CD-Pipeline automatisch auf den jeweils aktuellen Commit-SHA gesetzt und ändern sich daher laufend.*
