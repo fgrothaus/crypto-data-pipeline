@@ -1,6 +1,6 @@
 import pytest
 import pytest_asyncio
-from fastapi.testclient import TestClient
+import httpx
 
 from main import app
 from database.database import (
@@ -21,6 +21,7 @@ async def setup_database():
 
 
 class TestDatabaseIntegration:
+
     @pytest.mark.asyncio
     async def test_save_and_get_price_history(self):
         coin_id = "bitcoin"
@@ -65,23 +66,26 @@ class TestDatabaseIntegration:
 
 
 class TestApiEndpoints:
-    @pytest.fixture(autouse=True)
-    def setup_client(self):
-        self.client = TestClient(app)
 
-    def test_liveness_check(self):
-        response = self.client.get("/live")
+    @pytest_asyncio.fixture
+    async def client(self):
+        async with httpx.AsyncClient(transport=httpx.ASGITransport(app=app), base_url="http://test") as ac:
+            yield ac
+
+    @pytest.mark.asyncio
+    async def test_liveness_check(self, client):
+        response = await client.get("/live")
         assert response.status_code == 200
         assert response.json() == {"status": "ok"}
 
-    def test_readiness_check_with_real_redis(self):
-        response = self.client.get("/ready")
+    @pytest.mark.asyncio
+    async def test_readiness_check_with_real_redis(self, client):
+        response = await client.get("/ready")
         assert response.status_code == 200
         assert response.json() == {"status": "ok", "redis": "connected"}
 
-    def test_get_history_not_found(self):
-        response = self.client.get("/prices/history/unknown_coin")
+    @pytest.mark.asyncio
+    async def test_get_history_not_found(self, client):
+        response = await client.get("/prices/history/unknown_coin")
         assert response.status_code == 404
         assert "No price history found" in response.json()["detail"]
-
-
