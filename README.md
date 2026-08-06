@@ -223,28 +223,20 @@ DATABASE_URL=postgresql+asyncpg://crypto_user:crypto_password@postgres:5432/cryp
 
 > Die Postgres-Zugangsdaten müssen zu den Werten im `postgres`-Service der `docker-compose.yml` passen (`crypto_user` / `crypto_password` / `crypto_db`). Der Host ist der **Compose-Servicename** `postgres`, nicht `localhost` — die Container sprechen über das Docker-Netzwerk `crypto-network` miteinander.
 
-**3. Hostnamen auflösbar machen**
-
-Auf den meisten Systemen zeigt `*.localhost` bereits auf `127.0.0.1`. Falls nicht, in der Hosts-Datei ergänzen (`C:\Windows\System32\drivers\etc\hosts` bzw. `/etc/hosts`):
-
-```
-127.0.0.1 crypto.localhost api.crypto.localhost rabbitmq.localhost
-```
-
-**4. Starten**
+**3. Starten**
 
 ```bash
 docker compose up --build
 ```
 
-**5. Öffnen**
+**4. Öffnen**
 
 | Was | URL |
 |---|---|
 | Dashboard | <http://crypto.localhost> |
 | Backend-API Docs | <http://api.crypto.localhost/docs> |
 
-**6. Stoppen**
+**5. Stoppen**
 
 ```bash
 docker compose down            # Container entfernen, Volumes behalten
@@ -338,7 +330,7 @@ flowchart TD
 | Suite | Datei | Was geprüft wird |
 |---|---|---|
 | **Backend — DB-Integration** | `services/backend/tests/test_backend.py` | `save_price_update` → `get_coin_price_history` (Roundtrip inkl. exakter Betragsprüfung); `cleanup_old_prices` schneidet korrekt auf die Obergrenze zurück (15 geschrieben → 10 behalten) |
-| **Backend — API** | dito | `/live` liefert `200`; `/ready` prüft echte Redis-Verbindung; `/prices/history/unknown_coin` liefert `404` mit passender Message |
+| **Backend — API** | `services/backend/tests/test_backend.py` | `/live` liefert `200`; `/ready` prüft echte Redis-Verbindung; `/prices/history/unknown_coin` liefert `404` mit passender Message |
 | **Ingestion — externe API** | `services/ingestion/tests/test_ingestion_integration.py` | CoinGecko ist erreichbar und liefert das erwartete Schema (`eur`, `eur_24h_change`), inkl. Plausibilitäts-Check |
 
 ---
