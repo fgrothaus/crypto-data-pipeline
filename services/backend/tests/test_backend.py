@@ -7,7 +7,8 @@ from database.database import (
     init_db,
     save_price_update,
     get_coin_price_history,
-    cleanup_old_prices
+    cleanup_old_prices,
+    engine
 )
 from models import PriceUpdate, CoinMetrics
 
@@ -15,6 +16,8 @@ from models import PriceUpdate, CoinMetrics
 @pytest_asyncio.fixture(autouse=True)
 async def setup_database():
     await init_db()
+    yield
+    await engine.dispose()
 
 
 class TestDatabaseIntegration:
