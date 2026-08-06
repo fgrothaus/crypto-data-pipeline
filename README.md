@@ -7,7 +7,7 @@
 > [!IMPORTANT]
 > **Zweck des Projekts (Portfolio-Kontext)**
 >
-> Die Fachlichkeit (ein Krypto-Preis-Ticker) ist bewusst schlank gehalten. Sie ist der *Aufhänger*, um einen vollständigen, produktionsnahen Stack zu demonstrieren und mein Verständnis der einzelnen Bausteine und ihres Zusammenspiels zu zeigen:
+> Die Fachlichkeit (ein Krypto-Preis-Ticker) ist bewusst schlank gehalten. Sie ist der *Aufhänger*, um einen vollständigen, produktionsnahen Stack zu demonstrieren:
 >
 > **Asynchrones Python (asyncio) · Message Broker (RabbitMQ) · In-Memory-Cache (Redis) · relationale Persistenz (PostgreSQL + SQLAlchemy 2.0 async) · WebSockets für Server-Push · REST für historische Abfragen · React/TypeScript-SPA · Docker & Multi-Stage-Builds · Kubernetes (k3d) mit Deployments, StatefulSets, Services, Ingress, ConfigMaps, Secrets, Probes & Resource Limits · Reverse Proxy (Traefik) · CI mit GitHub Actions · CD nach dem GitOps-Prinzip mit ArgoCD.**
 >
