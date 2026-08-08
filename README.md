@@ -17,26 +17,7 @@
 
 ## 📹 Video-Demo
 
-> **Platzhalter — Video wird nachträglich eingefügt.**
->
-> Das Video zeigt den kompletten End-to-End-Ablauf:
->
-> 1. Start der Anwendung **lokal via `docker compose`** (Entwicklungs-/Debug-Modus mit Hot Reload).
-> 2. Hochfahren des **Kubernetes-Clusters (k3d)** inkl. ArgoCD-Bootstrapping über das PowerShell-Skript.
-> 3. Die laufende Anwendung im Browser: **Live-Dashboard (WebSocket)** und **Detail-Chart (REST + Postgres-Historie)**.
-> 4. Eine **Code-Änderung** wird vorgenommen und nach GitHub gepusht.
-> 5. Die **CI/CD-Pipeline** läuft durch (GitHub Actions: Lint → Test → Build → Push → Manifest-Update).
-> 6. **ArgoCD übernimmt die Änderung automatisch** (GitOps-Sync) — das Ergebnis wird live im Cluster sichtbar.
-
-<!--
-VIDEO HIER EINFÜGEN, z. B.:
-
-https://github.com/fgrothaus/crypto-data-pipeline/assets/<user-id>/<video>.mp4
-
-oder als klickbares Thumbnail:
-
-[![Demo ansehen](docs/video-thumbnail.png)](https://link-zum-video)
--->
+https://github.com/fgrothaus/crypto-data-pipeline/raw/master/docs/demo.mp4
 
 ---
 
