@@ -4,7 +4,7 @@ import { useCryptoWebSocket } from '../hooks/useCryptoWebSockets';
 export function Dashboard() {
   const { data, isConnected } = useCryptoWebSocket('ws://api.crypto.localhost/ws/prices');
   const navigate = useNavigate();
-  
+  console.log("CI/CD-Test");
   return (
     <div className="app-container">
       <header>
