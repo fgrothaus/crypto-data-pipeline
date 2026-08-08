@@ -4,11 +4,11 @@ import { useCryptoWebSocket } from '../hooks/useCryptoWebSockets';
 export function Dashboard() {
   const { data, isConnected } = useCryptoWebSocket('ws://api.crypto.localhost/ws/prices');
   const navigate = useNavigate();
-  
+
   return (
     <div className="app-container">
       <header>
-        <h1>Crypto Live Dashboard</h1>
+        <h1>Crypto Dashboard</h1>
         <div className={`status-badge ${isConnected ? 'connected' : 'disconnected'}`}>
           Status: {isConnected ? 'Verbunden' : 'Getrennt'}
         </div>
