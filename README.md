@@ -21,8 +21,6 @@
   Dein Browser unterstützt das Video-Tag leider nicht.
 </video>
 
-https://github.com/fgrothaus/crypto-data-pipeline/raw/master/docs/crypto-data-pipeline.mp4
-
 ---
 
 ## Inhaltsverzeichnis
