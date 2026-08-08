@@ -1,3 +1,5 @@
+
+
 # Crypto Data Pipeline
 
 **Eine Echtzeit-Datenpipeline für Kryptowährungskurse — von der externen API bis in den Browser, betrieben als Microservices auf Kubernetes mit vollautomatischer GitOps-Deployment-Kette.**
@@ -17,7 +19,9 @@
 
 ## 📹 Video-Demo
 
-https://github.com/fgrothaus/crypto-data-pipeline/releases/download/v1.0.0/crypto-data-pipeline.mp4
+<video src="https://github.com/fgrothaus/crypto-data-pipeline/releases/download/v1.0.0/crypto-data-pipeline.mp4" controls width="100%">
+  Dein Browser unterstützt das Video-Tag nicht.
+</video>
 
 ---
 
