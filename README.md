@@ -21,6 +21,10 @@
 
 [![Video Demo](https://img.shields.io/badge/▶_Video_Demo-Ansehen-blue?style=for-the-badge)](https://github.com/fgrothaus/crypto-data-pipeline/releases/download/v1.0.0/crypto-data-pipeline.mp4)
 
+
+https://github.com/user-attachments/assets/8b77736e-dc0a-490b-8c4d-96905931b9fc
+
+
 ---
 
 ## Inhaltsverzeichnis
