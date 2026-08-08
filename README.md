@@ -17,7 +17,7 @@
 
 ## 📹 Video-Demo
 
-https://github.com/fgrothaus/crypto-data-pipeline/raw/master/docs/demo.mp4
+https://github.com/fgrothaus/crypto-data-pipeline/raw/master/docs/crypto-data-pipeline.mp4
 
 ---
 
