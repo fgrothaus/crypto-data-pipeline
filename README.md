@@ -19,9 +19,7 @@
 
 ## 📹 Video-Demo
 
-<video src="https://github.com/fgrothaus/crypto-data-pipeline/releases/download/v1.0.0/crypto-data-pipeline.mp4" controls width="100%">
-  Dein Browser unterstützt das Video-Tag nicht.
-</video>
+[![Video Demo](https://img.shields.io/badge/▶_Video_Demo-Ansehen-blue?style=for-the-badge)](https://github.com/fgrothaus/crypto-data-pipeline/releases/download/v1.0.0/crypto-data-pipeline.mp4)
 
 ---
 
